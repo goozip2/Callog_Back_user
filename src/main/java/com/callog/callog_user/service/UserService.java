@@ -5,6 +5,7 @@ import com.callog.callog_user.common.exception.NotFound;
 import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.dto.UserLoginDto;
 import com.callog.callog_user.dto.UserRegisterDto;
+import com.callog.callog_user.dto.UserUpdateDto;
 import com.callog.callog_user.entity.User;
 import com.callog.callog_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +47,21 @@ public class UserService {
         }
         String jwtToken = jwtUtil.generateToken(user.getUserId());
         return jwtToken; // 로그인 성공 -> 유저페이지 창으로 이동?
+    }
+
+    @Transactional
+    public void updateUser(String currentUserId, UserUpdateDto dto) {
+        User user = userRepository.findByUserId(currentUserId);
+        if (user == null) {
+            throw new NotFound("존재하지 않는 사용자입니다.");
+        }
+        user.setUserName(dto.getUserName()); //닉네임 수정 (무조건 업데이트)
+
+        if (dto.hasNewPassword()) {
+            // 새로운 비밀번호를 암호화해서 저장
+            String encodedPassword = passwordEncoder.encode(dto.getPassword());
+            user.setPassword(encodedPassword);
+        }
+        userRepository.save(user);
     }
 }

@@ -3,9 +3,11 @@ package com.callog.callog_user.controller;
 import com.callog.callog_user.common.dto.ApiResponseDto;
 import com.callog.callog_user.dto.UserLoginDto;
 import com.callog.callog_user.dto.UserRegisterDto;
+import com.callog.callog_user.dto.UserUpdateDto;
 import com.callog.callog_user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,5 +27,16 @@ public class UserController {
     public ApiResponseDto<String> login(@RequestBody @Valid UserLoginDto dto) {
         String jwtToken = userService.login(dto);
         return ApiResponseDto.createOk(jwtToken);
+    }
+
+    @PostMapping("/update")
+    public ApiResponseDto<String> updateUser(
+            @RequestBody @Valid UserUpdateDto dto,
+            Authentication authentication) {
+        String currentUserId = authentication.getName();
+        userService.updateUser(currentUserId, dto);
+        return ApiResponseDto.createOk("회원정보가 수정되었습니다!");
+
+
     }
 }
