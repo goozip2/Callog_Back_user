@@ -29,11 +29,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponseDto<String>> handleValidationError(MethodArgumentNotValidException e) {
         // 첫 번째 검증 실패 메시지 가져오기
-        String errorMessage = e.getBindingResult()
-                .getFieldErrors()
-                .get(0)
-                .getDefaultMessage();  // "아이디를 입력하세요." 같은 메시지
-
+        String errorMessage;
+        if(!e.getBindingResult().getFieldErrors().isEmpty()) {
+            errorMessage = e.getBindingResult()
+                    .getFieldErrors()
+                    .get(0)
+                    .getDefaultMessage();// "아이디를 입력하세요." 같은 메시지
+        }
+        else if (!e.getBindingResult().getGlobalErrors().isEmpty()){
+            errorMessage = e.getBindingResult()
+                    .getGlobalErrors()
+                    .get(0)
+                    .getDefaultMessage();  // "비밀번호가 일치하지 않습니다." 같은 메시지
+        }
+        else {
+            errorMessage = "입력값이 올바르지 않습니다.";
+        }
         ApiResponseDto<String> response = ApiResponseDto.createError(
                 "ValidationError",
                 errorMessage
