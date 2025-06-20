@@ -2,7 +2,7 @@ package com.callog.callog_user.service;
 
 import com.callog.callog_user.common.exception.BadParameter;
 import com.callog.callog_user.common.exception.NotFound;
-import com.callog.callog_user.config.PasswordConfig;
+import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.dto.UserLoginDto;
 import com.callog.callog_user.dto.UserRegisterDto;
 import com.callog.callog_user.entity.User;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public void register(UserRegisterDto dto) {
@@ -32,17 +33,18 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional
-    public boolean login(UserLoginDto dto) {
+    @Transactional(readOnly = true)
+    public String login(UserLoginDto dto) {
         User user = userRepository.findByUserId(dto.getUserId());
-
         if(user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
         }
+
         //  matches : 입력받은 평문과 저장된 암호화 비밀번호를 비교하기위해 평문을 암호화
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BadParameter("비밀번호가 일치하지 않습니다.");
         }
-        return true; // 로그인 성공 -> 유저페이지 창으로 이동?
+        String jwtToken = jwtUtil.generateToken(user.getUserId());
+        return jwtToken; // 로그인 성공 -> 유저페이지 창으로 이동?
     }
 }

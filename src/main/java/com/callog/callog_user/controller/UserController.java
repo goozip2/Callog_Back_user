@@ -18,12 +18,12 @@ public class UserController {
     @PostMapping("/register")
     public ApiResponseDto<String> register(@RequestBody @Valid UserRegisterDto dto) {
         userService.register(dto);
-        return ApiResponseDto.defaultOk();
+        return ApiResponseDto.createOk("회원가입이 완료되었습니다!");
     }
 
     @PostMapping("/login")
     public ApiResponseDto<String> login(@RequestBody @Valid UserLoginDto dto) {
-        userService.login(dto);
-        return ApiResponseDto.createOk("로그인 성공 ");
+        String jwtToken = userService.login(dto);
+        return ApiResponseDto.createOk(jwtToken);
     }
 }
