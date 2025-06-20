@@ -17,7 +17,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ApiResponseDto<String> register(@RequestBody @Valid UserRegisterDto dto) {
-        userService.registerUser(dto);
+        userService.register(dto);
         return ApiResponseDto.defaultOk();
     }
 

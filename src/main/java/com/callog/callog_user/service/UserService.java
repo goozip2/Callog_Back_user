@@ -16,7 +16,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void registerUser(UserRegisterDto dto) {
+    public void register(UserRegisterDto dto) {
+        //중복 아이디 체크
+        User existingUser = userRepository.findByUserId(dto.getUserId());
+        // 이미 잇는 아이디면 예외
+        if(existingUser != null) {
+            throw new BadParameter("이미 사용중인 아이디 입니다.");
+        }
         User user = dto.toEntity();
         userRepository.save(user);
     }
