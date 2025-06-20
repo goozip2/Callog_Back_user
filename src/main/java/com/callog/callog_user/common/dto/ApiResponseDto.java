@@ -1,5 +1,6 @@
 package com.callog.callog_user.common.dto;
 
+import com.callog.callog_user.common.exception.ApiError;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,5 +26,9 @@ public class ApiResponseDto<T> {
 
     public static ApiResponseDto<String> defaultOk() {
         return createOk(null);
+    }
+
+    public static <T> ApiResponseDto<T> createError(String errorCode, String errorMessage) {
+        return new ApiResponseDto<>(errorCode, errorMessage, null);
     }
 }
