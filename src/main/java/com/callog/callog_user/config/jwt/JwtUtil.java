@@ -1,17 +1,17 @@
-package com.callog.callog_user.jwt.config;
+package com.callog.callog_user.config.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-@Slf4j
-@Component
-public class JwtConfig {
+@Slf4j  // 로그를 찍기 위한 어노테이션. log.info(), log.warn() 등을 사용할 수 있게 해줘
+@Component  // Spring이 이 클래스를 빈으로 관리하도록 하는 어노테이션
+public class JwtUtil {
     private final SecretKey key; //Jwt 서명/검증
     private final long expiration;
 
