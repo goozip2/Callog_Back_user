@@ -1,0 +1,40 @@
+# 🏠 로컬 개발 환경 설정
+
+spring:
+  # 🗄️ H2 인메모리 데이터베이스 설정
+  datasource:
+    url: jdbc:h2:mem:callog_local;MODE=MySQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # 💾 H2 콘솔 활성화
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect  # 🎯 명시적으로 Dialect 설정
+    hibernate:
+      ddl-auto: create-drop  # 앱 시작시 테이블 생성, 종료시 삭제
+    show-sql: true
+    generate-ddl: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+# 🔐 JWT 로컬 설정
+jwt:
+  secret: localDevelopmentSecretKeyForTestingOnly123456789
+
+# 📝 로컬 로깅 설정
+logging:
+  level:
+    com.callog.callog_user: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

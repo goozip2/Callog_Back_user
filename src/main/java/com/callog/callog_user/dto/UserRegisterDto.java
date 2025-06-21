@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@PasswordMatch
+//@PasswordMatch
 public class UserRegisterDto {
 
     @NotBlank(message = "아이디를 입력하세요.")

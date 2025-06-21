@@ -2,27 +2,36 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: local  # 🎯 기본값: 로컬 환경 (H2 사용)
+
+  # 🗄️ 기본 데이터소스 설정 (profile이 활성화 안 됐을 때 fallback)
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/callog_user?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
-    username: callog
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver  # MariaDB도 mysql 드라이버로 접속 가능
-    hikari:
-      connection-test-query: SELECT 1 # HikariCP 유효성 검사 추가
-      validation-timeout: 5000
+    url: jdbc:h2:mem:callog_default
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
-      ddl-auto: create # 오직 테스트 환경에서만
-    generate-ddl: true # 오직 테스트 환경에서만 (spring.jpa.generate-ddl)
+      ddl-auto: create-drop
     show-sql: true
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true  # SQL 포맷팅
+        format_sql: true
 
-# JWT 설정 추가! 🔐
+# 🔐 JWT 설정 (모든 환경 공통)
 jwt:
   secret: mySecretKeyForCallogUserApplicationThisShouldBeLongEnoughForSecurity123456789
-  expiration: 86400000
+  expiration: 86400000  # 24시간
 
+# 📝 로깅 기본 설정
+logging:
+  pattern:
+    console: '%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'

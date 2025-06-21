@@ -22,6 +22,9 @@ public class UserService {
 
     @Transactional
     public void register(UserRegisterDto dto) {
+        if (!dto.getPassword().equals(dto.getPasswordConfirm())) {
+            throw new BadParameter("비밀번호가 일치하지 않습니다.");
+        }
         //중복 아이디 체크
         User existingUser = userRepository.findByUserId(dto.getUserId());
         // 똑같은 아이디가 있으면 예외 발생
