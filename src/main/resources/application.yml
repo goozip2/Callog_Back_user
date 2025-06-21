@@ -21,3 +21,8 @@ spring:
       hibernate:
         format_sql: true  # SQL 포맷팅
 
+# JWT 설정 추가! 🔐
+jwt:
+  secret: mySecretKeyForCallogUserApplicationThisShouldBeLongEnoughForSecurity123456789
+  expiration: 86400000
+

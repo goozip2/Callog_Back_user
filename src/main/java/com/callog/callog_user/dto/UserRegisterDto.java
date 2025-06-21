@@ -1,12 +1,14 @@
 package com.callog.callog_user.dto;
 
 import com.callog.callog_user.entity.User;
+import com.callog.callog_user.validation.PasswordMatch;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@PasswordMatch
 public class UserRegisterDto {
 
     @NotBlank(message = "아이디를 입력하세요.")

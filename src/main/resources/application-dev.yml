@@ -20,6 +20,5 @@ spring:
 # JWT 설정 추가! 🔐
 jwt:
   secret: mySecretKeyForCallogUserApplicationThisShouldBeLongEnoughForSecurity123456789
-  # 비밀키는 실제로는 환경변수나 별도 설정파일로 관리해야 해! 지금은 테스트용
-  expiration: 86400000  # 24시간 (밀리초 단위: 24 * 60 * 60 * 1000)
+  expiration: 86400000
 
