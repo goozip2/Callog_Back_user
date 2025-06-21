@@ -30,6 +30,7 @@ spring:
 # 🔐 JWT 로컬 설정
 jwt:
   secret: localDevelopmentSecretKeyForTestingOnly123456789
+  expiration: 86400000
 
 # 📝 로컬 로깅 설정
 logging:
