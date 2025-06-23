@@ -37,13 +37,12 @@ public class User {
     @Column(name = "gender")  // 성별 (M/F 또는 MALE/FEMALE)
     private String gender;
 
-    public int getAge() {
-        if (age == null) {
-            return 0;
-        }
+    //현재년도 기준으로 나이 계산
+    public int getCurrentAge() {
+        if (age == null) return 0;
         return LocalDate.now().getYear() - age;
     }
 
-
-
+    public Integer getBirthYear() { return age; }
+    public void setBirthYear(Integer age) { this.age = age; }
 }

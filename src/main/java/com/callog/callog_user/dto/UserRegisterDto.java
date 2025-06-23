@@ -45,7 +45,6 @@ public class UserRegisterDto {
             message = "성별은 male 또는 female이어야 합니다.")
     private String gender;
 
-
     public User toEntity() {
         User user = new User();
         user.setUserName(username);
@@ -53,7 +52,8 @@ public class UserRegisterDto {
         user.setNickname(nikename);
         user.setHeight(height);
         user.setWeight(weight.doubleValue());
-        user.setAge(getAge());
+        user.setAge(age);
+        user.setGender(gender);
 
         return user;
     }
