@@ -42,7 +42,7 @@ public class User {
         if (age == null) return 0;
         return LocalDate.now().getYear() - age;
     }
-
+    //출생년도
     public Integer getBirthYear() { return age; }
     public void setBirthYear(Integer age) { this.age = age; }
 }

@@ -29,8 +29,10 @@ spring:
 
 # 🔐 JWT 로컬 설정
 jwt:
+  expires-in: 86400              # 액세스 토큰 1일 (24시간)
+  mobile-expires-in: 31536000    # 모바일 리프레시 토큰 1년
+  tablet-expires-in: 31536000
   secret: localDevelopmentSecretKeyForTestingOnly123456789
-  expiration: 86400000
 
 # 📝 로컬 로깅 설정
 logging:
@@ -41,3 +43,16 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.zaxxer.hikari: DEBUG  # 추가: DB 커넥션 풀 로그
 
+eureka:
+  instance:
+    prefer-ip-address: true
+  #    lease-renewal-interval-in-seconds: 10 # 하트비트 간격(기본 30초)
+  #    lease-expiration-duration-in-seconds: 30 # 만료 시간(기본 90초)
+  client:
+    # export
+    register-with-eureka: true
+    # import
+    fetch-registry: true
+    # 유레카 서버의 위치 주소
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

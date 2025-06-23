@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtUtil.validateToken(token)) {
                     // 3️⃣ 사용자 정보 추출
-                    String userId = jwtUtil.getUserIdFromToken(token);
+                    String userId = jwtUtil.getUsernameFromToken(token);
                     log.debug("토큰에서 추출된 사용자 ID: {}", userId);
 
                     UsernamePasswordAuthenticationToken authentication =
@@ -81,6 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             return path.startsWith("/user/login") ||
                     path.startsWith("/user/register") ||
+                    path.startsWith("/user/refresh") ||
                     path.startsWith("/h2-console") ||
                     path.startsWith("/error");
 

@@ -2,9 +2,7 @@ package com.callog.callog_user.controller;
 
 import com.callog.callog_user.common.dto.ApiResponseDto;
 import com.callog.callog_user.config.jwt.JwtUtil;
-import com.callog.callog_user.dto.UserLoginDto;
-import com.callog.callog_user.dto.UserRegisterDto;
-import com.callog.callog_user.dto.UserUpdateDto;
+import com.callog.callog_user.dto.*;
 import com.callog.callog_user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,9 +25,15 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ApiResponseDto<String> login(@RequestBody @Valid UserLoginDto dto) {
-        String jwtToken = userService.login(dto);
-        return ApiResponseDto.createOk(jwtToken);
+    public ApiResponseDto<TokenDto.AccessRefreshToken> login(@RequestBody @Valid UserLoginDto dto) {
+        TokenDto.AccessRefreshToken tokens = userService.login(dto);
+        return ApiResponseDto.createOk(tokens);
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponseDto<TokenDto.AccessToken> refresh(@RequestBody @Valid UserRefreshDto refreshDto) {
+        TokenDto.AccessToken newAccessToken = userService.refresh(refreshDto.getToken());
+        return ApiResponseDto.createOk(newAccessToken);
     }
 
     @PostMapping("/update")

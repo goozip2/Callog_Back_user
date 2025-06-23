@@ -2,6 +2,7 @@ package com.callog.callog_user.config.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -9,47 +10,66 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-@Slf4j  // 로그를 찍기 위한 어노테이션. log.info(), log.warn() 등을 사용할 수 있게 해줘
-@Component  // Spring이 이 클래스를 빈으로 관리하도록 하는 어노테이션
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class JwtUtil {
-    private final SecretKey key; //Jwt 서명/검증
-    private final long expiration;
+    private final JwtConfigProperties configProperties;
+    private volatile SecretKey key; // TokenGenerator와 동일한 키 사용
 
-    public JwtUtil(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration}") long expiration) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.expiration = expiration;
+    // 🔐 비밀키 생성 (TokenGenerator와 동일한 방식)
+    private SecretKey getSecretKey() {
+        if (key == null) {
+            synchronized (this) {
+                if (key == null) {
+                    key = Keys.hmacShaKeyFor(configProperties.getSecretKey().getBytes());
+                }
+            }
+        }
+        return key;
     }
 
-    //Jwt 토큰 생성
-    public String generateToken(String userId) {
+    // 🎯 기존 토큰 생성 메서드 (하위 호환성을 위해 유지)
+    public String generateToken(String username) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration); //만료 시간 계산
+        Date expiryDate = new Date(now.getTime() + 15 * 60 * 1000); // 15분
 
         return Jwts.builder()
-                .subject(userId) //userId에 대한 토큰
-                .issuedAt(now) // 토큰 발행시간
-                .expiration(expiryDate) // 서버에서 자동으로 만료 검증
-                .signWith(key) //토큰 보장
+                .subject(username)
+                .claim("username", username)
+                .claim("tokenType", "access") // 액세스 토큰으로 명시
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSecretKey())
                 .compact();
     }
 
-    //토큰 정보 꺼내기(토큰 파싱)
-    public String getUserIdFromToken(String token) {
+    // 🔍 토큰에서 사용자 ID 추출
+    public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.getSubject(); // JWT의 subject 필드에서 우리가 저장한 userId 반환
+        return claims.getSubject();
     }
 
+    // ✅ 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(key)
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSecretKey())
                     .build()
-                    .parseSignedClaims(token);
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            // 액세스 토큰인지 확인 (리프레시 토큰은 인증에 사용하면 안 됨)
+            String tokenType = claims.get("tokenType", String.class);
+            if (!"access".equals(tokenType)) {
+                log.warn("액세스 토큰이 아닙니다. tokenType: {}", tokenType);
+                return false;
+            }
+
             return true;
 
         } catch (ExpiredJwtException e) {
@@ -57,21 +77,18 @@ public class JwtUtil {
         } catch (UnsupportedJwtException e) {
             log.warn("지원되지 않는 토큰입니다: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            //JWT 형식이 깨진 경우 (점이 2개가 아니라든지)
             log.warn("잘못된 형식의 토큰입니다: {}", e.getMessage());
         } catch (SecurityException | IllegalArgumentException e) {
-            //서명이 틀리거나 키가 잘못된 경우
             log.warn("유효하지 않은 토큰입니다: {}", e.getMessage());
         }
         return false;
     }
 
-    //BearToken처리
+    // 🎯 Bearer 토큰 처리
     public String resolveToken(String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // "Bearer " = 7글자니까 7번째부터 잘라내기
+            return bearerToken.substring(7);
         }
         return null;
     }
 }
-

@@ -1,5 +1,5 @@
 spring:
   application:
-    name: callog_user
+    name: callog-user
   profiles:
     active: local
