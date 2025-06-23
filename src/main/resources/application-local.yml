@@ -1,31 +1,28 @@
-# 🏠 로컬 개발 환경 설정
-
 spring:
-  # 🗄️ H2 인메모리 데이터베이스 설정
   datasource:
-    url: jdbc:h2:mem:callog_local;MODE=MySQL;DATABASE_TO_LOWER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  # 💾 H2 콘솔 활성화
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: true
+    url: jdbc:mysql://127.0.0.1:3306/callog_user?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+    username: callog
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+      maximum-pool-size: 10  # 추가: 커넥션 풀 크기 설정
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect  # 🎯 명시적으로 Dialect 설정
+    database-platform: org.hibernate.dialect.MySQL8Dialect  # ✅ MySQL Dialect로 변경!
     hibernate:
-      ddl-auto: create-drop  # 앱 시작시 테이블 생성, 종료시 삭제
+      ddl-auto: create-drop  # ✅ create-drop / update (데이터 유지)
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     generate-ddl: true
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
+        jdbc:
+          time_zone: UTC  # 타임존 설정 추가
 
 # 🔐 JWT 로컬 설정
 jwt:
@@ -39,3 +36,7 @@ logging:
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.zaxxer.hikari: DEBUG  # 추가: DB 커넥션 풀 로그
+
+server:
+  port: 8082
