@@ -35,8 +35,6 @@ public class UserController {
             Authentication authentication) {
         String currentUserId = authentication.getName();
         userService.updateUser(currentUserId, dto);
-        return ApiResponseDto.createOk("회원정보가 수정되었습니다!");
-
-
+        return ApiResponseDto.createOk("신체정보가 수정되었습니다!");
     }
 }

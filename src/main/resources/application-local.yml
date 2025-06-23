@@ -39,4 +39,4 @@ logging:
     com.zaxxer.hikari: DEBUG  # 추가: DB 커넥션 풀 로그
 
 server:
-  port: 8082
+  port: 8081
