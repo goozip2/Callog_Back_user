@@ -26,7 +26,7 @@ public class UserService {
             throw new BadParameter("비밀번호가 일치하지 않습니다.");
         }
         //중복 아이디 체크
-        User existingUser = userRepository.findByUserId(dto.getUsername());
+        User existingUser = userRepository.findByUserName(dto.getUsername());
         // 똑같은 아이디가 있으면 예외 발생
         if (existingUser != null) {
             throw new BadParameter("이미 사용중인 아이디 입니다.");
@@ -39,7 +39,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public String login(UserLoginDto dto) {
-        User user = userRepository.findByUserId(dto.getUsername());
+        User user = userRepository.findByUserName(dto.getUsername());
         if (user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
         }
@@ -54,7 +54,7 @@ public class UserService {
 
     @Transactional
     public void updateUser(String currentUserId, UserUpdateDto dto) {
-        User user = userRepository.findByUserId(currentUserId);
+        User user = userRepository.findByUserName(currentUserId);
 
         if (user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
@@ -65,12 +65,10 @@ public class UserService {
         }
 
         if (dto.hasHeight()) {
-            Integer oldHeight = user.getHeight();
             user.setHeight(dto.getHeight());
         }
 
         if (dto.hasWeight()) {
-            Double oldWeight = user.getWeight();
             user.setWeight(dto.getWeightAsDouble());
         }
         userRepository.save(user);
