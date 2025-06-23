@@ -83,7 +83,6 @@ public class UserService {
             throw new NotFound("사용자를 찾을 수 없습니다.");
         }
 
-        // 3️⃣ 새로운 액세스 토큰 발급
         TokenDto.AccessToken newAccessToken = tokenGenerator.generateAccessToken(username, "WEB");
 
         return newAccessToken;
@@ -91,13 +90,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public TokenDto.LogoutToken logout(String currentUserId) {
-        // 1️⃣ 사용자 존재 확인
+        //  사용자 존재 확인
         User user = userRepository.findByUsername(currentUserId);
         if (user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
         }
 
-        // 2️⃣ 로그아웃용 토큰 생성 (즉시 만료되는 토큰)
+        // 로그아웃용 토큰 생성 (즉시 만료되는 토큰)
         TokenDto.LogoutToken logoutTokens = tokenGenerator.generateLogoutToken(
                 user.getUsername(),
                 "WEB"
