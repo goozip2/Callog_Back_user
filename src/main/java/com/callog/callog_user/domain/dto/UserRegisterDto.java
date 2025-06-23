@@ -1,12 +1,9 @@
-package com.callog.callog_user.dto;
+package com.callog.callog_user.domain.dto;
 
-import com.callog.callog_user.entity.User;
-import com.callog.callog_user.validation.PasswordMatch;
+import com.callog.callog_user.domain.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter

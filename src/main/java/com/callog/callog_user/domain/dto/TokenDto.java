@@ -1,4 +1,4 @@
-package com.callog.callog_user.dto;
+package com.callog.callog_user.domain.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

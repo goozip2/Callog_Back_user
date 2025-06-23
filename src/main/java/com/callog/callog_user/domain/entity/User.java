@@ -1,4 +1,4 @@
-package com.callog.callog_user.entity;
+package com.callog.callog_user.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

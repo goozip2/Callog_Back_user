@@ -1,6 +1,6 @@
 package com.callog.callog_user.config.jwt;
 
-import com.callog.callog_user.dto.TokenDto;
+import com.callog.callog_user.domain.dto.TokenDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -170,7 +170,7 @@ public class TokenGenerator {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (Exception e) {
-            return null; 
+            return null;
         }
     }
 }
