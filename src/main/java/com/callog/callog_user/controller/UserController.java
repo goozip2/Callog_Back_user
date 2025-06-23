@@ -37,4 +37,11 @@ public class UserController {
         userService.updateUser(currentUserId, dto);
         return ApiResponseDto.createOk("신체정보가 수정되었습니다!");
     }
+
+    @PostMapping("/logout")
+    public ApiResponseDto<String> logout(Authentication authentication) {
+        String currentUserId = authentication.getName();
+        userService.logout(currentUserId);
+        return ApiResponseDto.createOk("로그아웃이 완료되었습니다!");
+    }
 }

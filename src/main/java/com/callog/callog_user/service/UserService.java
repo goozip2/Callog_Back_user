@@ -13,12 +13,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
+    private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
+
 
     @Transactional
     public void register(UserRegisterDto dto) {
@@ -56,23 +62,51 @@ public class UserService {
     public void updateUser(String currentUserId, UserUpdateDto dto) {
         User user = userRepository.findByUserName(currentUserId);
 
+        //사용자 정보 확인
         if (user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
         }
-
+        //수정한 정보있는지 확인
         if (!dto.hasAnyUpdate()) {
             throw new BadParameter("수정한 정보가 없습니다.");
         }
-
+        // 키 수정
         if (dto.hasHeight()) {
             user.setHeight(dto.getHeight());
         }
-
+        // 몸무게 수정
         if (dto.hasWeight()) {
             user.setWeight(dto.getWeightAsDouble());
         }
         userRepository.save(user);
+    }
 
+    @Transactional(readOnly = true)
+    public void logout (String currentUserId) {
+        User user = userRepository.findByUserName(currentUserId);
+        if(user == null) {
+            throw new NotFound("존재하지 않는 사용자입니다.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void logout(String currentUserId, String token) {
+        User user = userRepository.findByUserName(currentUserId);
+        if(user == null){
+            throw new NotFound("존재하지 않는 사용자입니다.");
+        }
+        if (!jwtUtil.validateToken(token)) {
+            throw new BadParameter("유효하지 않은 토큰입니다.");
+        }
+        blacklistedTokens.add(token);
+
+    }
+    public boolean isTokenBlacklisted(String token) {
+        return blacklistedTokens.contains(token);
+    }
+    // 📊 블랙리스트 크기 확인 (디버깅/모니터링용)
+    public int getBlacklistSize() {
+        return blacklistedTokens.size();
     }
 
 }
