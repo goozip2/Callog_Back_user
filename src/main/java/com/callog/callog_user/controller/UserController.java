@@ -3,11 +3,13 @@ package com.callog.callog_user.controller;
 import com.callog.callog_user.common.dto.ApiResponseDto;
 import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.dto.*;
+import com.callog.callog_user.repository.UserRepository;
 import com.callog.callog_user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +19,8 @@ public class UserController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     public ApiResponseDto<String> register(@RequestBody @Valid UserRegisterDto dto) {

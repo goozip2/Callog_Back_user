@@ -37,7 +37,7 @@ public class UserService {
             throw new BadParameter("비밀번호가 일치하지 않습니다.");
         }
         //중복 아이디 체크
-        User existingUser = userRepository.findByUserName(dto.getUsername());
+        User existingUser = userRepository.findByUsername(dto.getUsername());
         // 똑같은 아이디가 있으면 예외 발생
         if (existingUser != null) {
             throw new BadParameter("이미 사용중인 아이디 입니다.");
@@ -51,7 +51,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public TokenDto.AccessRefreshToken login(UserLoginDto dto) {
-        User user = userRepository.findByUserName(dto.getUsername());
+        User user = userRepository.findByUsername(dto.getUsername());
         if (user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
         }
@@ -61,7 +61,7 @@ public class UserService {
             throw new BadParameter("비밀번호가 일치하지 않습니다.");
         }
 
-        TokenDto.AccessRefreshToken tokens = tokenGenerator.generateAccessRefreshToken(user.getUserName(),
+        TokenDto.AccessRefreshToken tokens = tokenGenerator.generateAccessRefreshToken(user.getUsername(),
                 "WEB");
 
         return tokens; // 로그인 성공
@@ -78,7 +78,7 @@ public class UserService {
         }
 
         // 2️⃣ 사용자 존재 여부 확인
-        User user = userRepository.findByUserName(username);
+        User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new NotFound("사용자를 찾을 수 없습니다.");
         }
@@ -91,7 +91,7 @@ public class UserService {
 
     @Transactional
     public void updateUser(String currentUserId, UserUpdateDto dto) {
-        User user = userRepository.findByUserName(currentUserId);
+        User user = userRepository.findByUsername(currentUserId);
 
         //사용자 정보 확인
         if (user == null) {
@@ -114,7 +114,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public void logout(String currentUserId, String token) {
-        User user = userRepository.findByUserName(currentUserId);
+        User user = userRepository.findByUsername(currentUserId);
         if(user == null){
             throw new NotFound("존재하지 않는 사용자입니다.");
         }

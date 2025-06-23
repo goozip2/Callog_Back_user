@@ -108,7 +108,7 @@ public class TokenGenerator {
             return null;
         }
 
-        username = claims.get("userName", String.class);
+        username = claims.get("username", String.class);
         String tokenType = claims.get("tokenType", String.class);
 
         // 리프레시 토큰인지 확인

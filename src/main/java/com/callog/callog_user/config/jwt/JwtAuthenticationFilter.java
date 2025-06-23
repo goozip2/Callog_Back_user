@@ -51,20 +51,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtUtil.validateToken(token)) {
                     // 3️⃣ 사용자 정보 추출
-                    String userId = jwtUtil.getUsernameFromToken(token);
-                    log.debug("토큰에서 추출된 사용자 ID: {}", userId);
+                    String username = jwtUtil.getUsernameFromToken(token);
+                    log.debug("토큰에서 추출된 사용자 ID: {}", username);
 
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+                            new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
                     // 생성자 파라미터 설명:
-                    // - principal: 인증된 사용자 (우리는 userId 문자열 사용)
+                    // - principal: 인증된 사용자 (우리는 username 문자열 사용)
                     // - credentials: 인증 정보 (JWT에서는 null, 이미 검증했으니까)
                     // - authorities: 사용자 권한 (지금은 빈 리스트, 나중에 권한 기능 추가할 때 수정)
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    log.debug("사용자 {}의 인증이 완료되었습니다.", userId);
+                    log.debug("사용자 {}의 인증이 완료되었습니다.", username);
                 } else {
                     log.warn("유효하지 않은 토큰입니다.");
                 }

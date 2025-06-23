@@ -47,7 +47,7 @@ public class UserRegisterDto {
 
     public User toEntity() {
         User user = new User();
-        user.setUserName(username);
+        user.setUsername(username);
         user.setPassword(password);
         user.setNickname(nikename);
         user.setHeight(height);
