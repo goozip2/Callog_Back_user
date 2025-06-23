@@ -23,7 +23,7 @@ public class UserRegisterDto {
     private String passwordCheck;
 
     @NotBlank(message = "닉네임을 입력하세요.")
-    private String nikename;
+    private String nickname;
 
     @NotNull(message = "키를 입력하세요.")
     @Min(value = 0, message = "키는 0cm 이상이어야 합니다.")
@@ -49,7 +49,7 @@ public class UserRegisterDto {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.setNickname(nikename);
+        user.setNickname(nickname);
         user.setHeight(height);
         user.setWeight(weight.doubleValue());
         user.setAge(age);

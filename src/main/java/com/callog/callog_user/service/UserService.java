@@ -112,28 +112,5 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
-    public void logout(String currentUserId, String token) {
-        User user = userRepository.findByUsername(currentUserId);
-        if(user == null){
-            throw new NotFound("존재하지 않는 사용자입니다.");
-        }
-        if (token == null || token.trim().isEmpty()) {
-            throw new BadParameter("토큰이 제공되지 않았습니다.");
-        }
-        if (!jwtUtil.validateToken(token)) {
-            throw new BadParameter("유효하지 않은 토큰입니다.");
-        }
-
-        blacklistedTokens.add(token);
-    }
-    //토큰이 블랙리스트에 있는지 확인
-    public boolean isTokenBlacklisted(String token) {
-        return blacklistedTokens.contains(token);
-    }
-    // 📊 블랙리스트 크기 확인 (디버깅/모니터링용)
-    public int getBlacklistSize() {
-        return blacklistedTokens.size();
-    }
 
 }

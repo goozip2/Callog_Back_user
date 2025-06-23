@@ -49,17 +49,4 @@ public class UserController {
         return ApiResponseDto.createOk("신체정보가 수정되었습니다!");
     }
 
-    @PostMapping("/logout")
-    public ApiResponseDto<String> logout(
-            Authentication authentication,
-            HttpServletRequest request) {
-
-        String currentUserId = authentication.getName();
-
-        //🔥 Authorization 헤더에서 토큰 추출
-        String authHeader = request.getHeader("Authorization");
-        String token = jwtUtil.resolveToken(authHeader); // "Bearer " 제거하고 순수 토큰만 추출
-        userService.logout(currentUserId,token);
-        return ApiResponseDto.createOk("로그아웃이 완료되었습니다!");
-    }
 }
