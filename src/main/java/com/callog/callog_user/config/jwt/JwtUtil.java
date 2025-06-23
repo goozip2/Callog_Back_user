@@ -54,7 +54,7 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    // ✅ 토큰 유효성 검증
+    // ✅ 토큰 유효성 검증 - 로그아웃 토큰 체크 추가
     public boolean validateToken(String token) {
         try {
             Claims claims = Jwts.parser()
@@ -63,10 +63,24 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            // 액세스 토큰인지 확인 (리프레시 토큰은 인증에 사용하면 안 됨)
+            // 1️⃣ 액세스 토큰인지 확인 (리프레시 토큰은 인증에 사용하면 안 됨)
             String tokenType = claims.get("tokenType", String.class);
             if (!"access".equals(tokenType)) {
                 log.warn("액세스 토큰이 아닙니다. tokenType: {}", tokenType);
+                return false;
+            }
+
+            // 2️⃣ 로그아웃 토큰인지 확인
+            Boolean loggedOut = claims.get("loggedOut", Boolean.class);
+            if (Boolean.TRUE.equals(loggedOut)) {
+                log.warn("로그아웃된 토큰입니다.");
+                return false;
+            }
+
+            // 3️⃣ 만료시간 체크 (ExpiredJwtException으로 자동 처리되지만 명시적으로 확인)
+            Date expiration = claims.getExpiration();
+            if (expiration.before(new Date())) {
+                log.warn("만료된 토큰입니다.");
                 return false;
             }
 

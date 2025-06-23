@@ -40,6 +40,13 @@ public class UserController {
         return ApiResponseDto.createOk(newAccessToken);
     }
 
+    @PostMapping("/logout")
+    public ApiResponseDto<TokenDto.LogoutToken> logout(Authentication authentication) {
+        String currentUserId = authentication.getName();
+        TokenDto.LogoutToken logoutTokens = userService.logout(currentUserId);
+        return ApiResponseDto.createOk(logoutTokens);
+    }
+
     @PostMapping("/update")
     public ApiResponseDto<String> updateUser(
             @RequestBody @Valid UserUpdateDto dto,

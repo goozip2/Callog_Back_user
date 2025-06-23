@@ -24,7 +24,20 @@ public class TokenGenerator {
         if (secretKey == null) {
             synchronized (this) { // 동기화로 스레드 안전성 보장
                 if (secretKey == null) {
-                    secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(configProperties.getSecretKey()));
+                    String configSecret = configProperties.getSecretKey();
+                    String hardcodedSecret = "localDevelopmentSecretKeyForTestingOnly123456789";
+
+                    // null이거나 빈 문자열이면 하드코딩 사용
+                    String finalSecret = (configSecret != null && !configSecret.trim().isEmpty())
+                            ? configSecret
+                            : hardcodedSecret;
+
+                    secretKey = Keys.hmacShaKeyFor(finalSecret.getBytes());
+
+                    // 디버깅 로그
+                    log.warn("🔐 JWT Secret 사용: {}",
+                            configSecret != null ? "설정파일 로드됨" : "하드코딩 fallback");
+                    log.info("시크릿 키 길이: {}바이트", finalSecret.length());
                 }
             }
         }
@@ -42,6 +55,48 @@ public class TokenGenerator {
         TokenDto.JwtToken accessJwtToken = this.generateJwtToken(username, deviceType, false);   // 액세스 토큰
         TokenDto.JwtToken refreshJwtToken = this.generateJwtToken(username, deviceType, true);   // 리프레시 토큰
         return new TokenDto.AccessRefreshToken(accessJwtToken, refreshJwtToken);
+    }
+
+    // 🚪 로그아웃용 메서드 - 즉시 만료되는 토큰 생성
+    public TokenDto.LogoutToken generateLogoutToken(String username, String deviceType) {
+        // 현재 시간을 만료시간으로 설정 (즉시 만료)
+        Date now = new Date();
+        Date expiredTime = new Date(now.getTime() - 1000); // 1초 전으로 설정 (완전 만료)
+
+        String expiredAccessToken = Jwts.builder()
+                .issuer("callog")
+                .subject(username)
+                .claim("username", username)
+                .claim("deviceType", deviceType)
+                .claim("tokenType", "access")
+                .claim("loggedOut", true) // 로그아웃 토큰임을 명시
+                .issuedAt(now)
+                .expiration(expiredTime) // 이미 만료된 시간으로 설정
+                .signWith(getSecretKey())
+                .header().add("typ", "JWT")
+                .and()
+                .compact();
+
+        String expiredRefreshToken = Jwts.builder()
+                .issuer("callog")
+                .subject(username)
+                .claim("username", username)
+                .claim("deviceType", deviceType)
+                .claim("tokenType", "refresh")
+                .claim("loggedOut", true) // 로그아웃 토큰임을 명시
+                .issuedAt(now)
+                .expiration(expiredTime) // 이미 만료된 시간으로 설정
+                .signWith(getSecretKey())
+                .header().add("typ", "JWT")
+                .and()
+                .compact();
+
+        log.debug("로그아웃 토큰 생성 완료: username={}, 만료시간={}", username, expiredTime);
+
+        return new TokenDto.LogoutToken(
+                new TokenDto.JwtToken(expiredAccessToken, 0),
+                new TokenDto.JwtToken(expiredRefreshToken, 0)
+        );
     }
 
     // 🔧 실제 JWT 토큰을 생성하는 핵심 메서드
@@ -73,20 +128,30 @@ public class TokenGenerator {
         int expiresIn = 60 * 15; // 기본값: 15분
 
         if (refreshToken) {
-            // 리프레시 토큰인 경우 디바이스 타입에 따라 만료시간 설정
-            if (deviceType != null) {
-                if (deviceType.equals("WEB")) {
-                    expiresIn = configProperties.getExpiresIn();
-                } else if (deviceType.equals("MOBILE")) {
-                    expiresIn = configProperties.getMobileExpiresIn();
-                } else if (deviceType.equals("TABLET")) {
-                    expiresIn = configProperties.getTabletExpiresIn();
+            try {
+                // 리프레시 토큰인 경우 디바이스 타입에 따라 만료시간 설정
+                if (deviceType != null) {
+                    if (deviceType.equals("WEB")) {
+                        Integer configValue = configProperties.getExpiresIn();
+                        expiresIn = (configValue != null) ? configValue : 86400; // 1일 기본값
+                    } else if (deviceType.equals("MOBILE")) {
+                        Integer configValue = configProperties.getMobileExpiresIn();
+                        expiresIn = (configValue != null) ? configValue : 31536000; // 1년 기본값
+                    } else if (deviceType.equals("TABLET")) {
+                        Integer configValue = configProperties.getTabletExpiresIn();
+                        expiresIn = (configValue != null) ? configValue : 31536000; // 1년 기본값
+                    }
+                } else {
+                    Integer configValue = configProperties.getExpiresIn();
+                    expiresIn = (configValue != null) ? configValue : 86400; // 1일 기본값
                 }
-            } else {
-                expiresIn = configProperties.getExpiresIn();
+            } catch (Exception e) {
+                log.warn("설정 읽기 실패, 기본값 사용: {}", e.getMessage());
+                expiresIn = 86400; // 1일 기본값
             }
         }
         // 액세스 토큰은 항상 15분으로 고정
+        log.debug("토큰 만료시간: {}초 ({})", expiresIn, refreshToken ? "refresh" : "access");
 
         return expiresIn;
     }
@@ -114,6 +179,13 @@ public class TokenGenerator {
         // 리프레시 토큰인지 확인
         if (!"refresh".equals(tokenType)) {
             log.warn("리프레시 토큰이 아닙니다. tokenType: {}", tokenType);
+            return null;
+        }
+
+        // 로그아웃된 토큰인지 확인
+        Boolean loggedOut = claims.get("loggedOut", Boolean.class);
+        if (Boolean.TRUE.equals(loggedOut)) {
+            log.warn("로그아웃된 리프레시 토큰입니다.");
             return null;
         }
 

@@ -34,4 +34,16 @@ public class TokenDto {
         private final JwtToken access;   // 액세스 토큰
         private final JwtToken refresh;  // 리프레시 토큰
     }
+
+    // 🚪 로그아웃용 토큰 클래스 - 만료된 토큰들을 담음
+    @Getter
+    @RequiredArgsConstructor
+    public static class LogoutToken {
+        private final JwtToken access;   // 만료된 액세스 토큰
+        private final JwtToken refresh;  // 만료된 리프레시 토큰
+
+        // 클라이언트에게 로그아웃 상태임을 알려주는 플래그
+        private final boolean loggedOut = true;
+        private final String message = "로그아웃이 완료되었습니다.";
+    }
 }
