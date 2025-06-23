@@ -82,25 +82,21 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public void logout (String currentUserId) {
-        User user = userRepository.findByUserName(currentUserId);
-        if(user == null) {
-            throw new NotFound("존재하지 않는 사용자입니다.");
-        }
-    }
-
-    @Transactional(readOnly = true)
     public void logout(String currentUserId, String token) {
         User user = userRepository.findByUserName(currentUserId);
         if(user == null){
             throw new NotFound("존재하지 않는 사용자입니다.");
         }
+        if (token == null || token.trim().isEmpty()) {
+            throw new BadParameter("토큰이 제공되지 않았습니다.");
+        }
         if (!jwtUtil.validateToken(token)) {
             throw new BadParameter("유효하지 않은 토큰입니다.");
         }
-        blacklistedTokens.add(token);
 
+        blacklistedTokens.add(token);
     }
+    //토큰이 블랙리스트에 있는지 확인
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokens.contains(token);
     }
