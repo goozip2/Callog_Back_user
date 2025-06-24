@@ -1,4 +1,4 @@
-package com.callog.callog_user.domain.dto;
+package com.callog.callog_user.domain.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

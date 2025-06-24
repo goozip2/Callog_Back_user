@@ -1,6 +1,7 @@
-package com.callog.callog_user.domain.dto;
+package com.callog.callog_user.domain.dto.user;
 
 import com.callog.callog_user.domain.entity.User;
+import com.callog.callog_user.remote.status.common.Gender;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,18 +41,13 @@ public class UserRegisterDto {
     @NotBlank(message = "성별을 선택하세요.")
     @Pattern(regexp = "^(male|female)$",
             message = "성별은 male 또는 female이어야 합니다.")
-    private String gender;
+    private Gender gender;
 
-    public User toEntity() {
+    public User toUserEntity() {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
         user.setNickname(nickname);
-        user.setHeight(height);
-        user.setWeight(weight.doubleValue());
-        user.setAge(age);
-        user.setGender(gender);
-
         return user;
     }
 
