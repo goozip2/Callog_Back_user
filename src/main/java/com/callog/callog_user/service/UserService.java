@@ -4,10 +4,7 @@ import com.callog.callog_user.common.exception.BadParameter;
 import com.callog.callog_user.common.exception.NotFound;
 import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.config.jwt.TokenGenerator;
-import com.callog.callog_user.domain.dto.TokenDto;
-import com.callog.callog_user.domain.dto.UserLoginDto;
-import com.callog.callog_user.domain.dto.UserRegisterDto;
-import com.callog.callog_user.domain.dto.UserUpdateDto;
+import com.callog.callog_user.domain.dto.*;
 import com.callog.callog_user.domain.entity.User;
 import com.callog.callog_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -128,6 +125,17 @@ public class UserService {
             user.setWeight(dto.getWeightAsDouble());
         }
         userRepository.save(user);
+    }
+
+    public UserInfoDto.Response getUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. :" + userId));
+
+        UserInfoDto.Response response = new UserInfoDto.Response();
+        response.setUsername(user.getUsername());
+        response.setNickname(user.getNickname());
+
+        return response;
     }
 
 

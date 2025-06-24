@@ -1,4 +1,4 @@
-package com.callog.callog_user.controller;
+package com.callog.callog_user.api.open;
 
 import com.callog.callog_user.common.dto.ApiResponseDto;
 import com.callog.callog_user.config.jwt.JwtUtil;
