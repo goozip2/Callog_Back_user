@@ -1,6 +1,6 @@
 package com.callog.callog_user.api.back;
 
-import com.callog.callog_user.domain.dto.UserInfoDto;
+import com.callog.callog_user.domain.dto.user.UserInfoDto;
 import com.callog.callog_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
