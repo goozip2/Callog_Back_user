@@ -25,24 +25,5 @@ public class User {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(name = "height")
-    private Integer height;
 
-    @Column(name = "weight")
-    private Double weight;
-
-    @Column(name = "age")
-    private Integer age;
-
-    @Column(name = "gender")  // 성별 (M/F 또는 MALE/FEMALE)
-    private String gender;
-
-    //현재년도 기준으로 나이 계산
-    public int getCurrentAge() {
-        if (age == null) return 0;
-        return LocalDate.now().getYear() - age;
-    }
-    //출생년도
-    public Integer getBirthYear() { return age; }
-    public void setBirthYear(Integer age) { this.age = age; }
 }
