@@ -4,7 +4,10 @@ import com.callog.callog_user.common.exception.BadParameter;
 import com.callog.callog_user.common.exception.NotFound;
 import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.config.jwt.TokenGenerator;
-import com.callog.callog_user.domain.dto.*;
+import com.callog.callog_user.domain.dto.token.TokenDto;
+import com.callog.callog_user.domain.dto.user.UserInfoDto;
+import com.callog.callog_user.domain.dto.user.UserLoginDto;
+import com.callog.callog_user.domain.dto.user.UserRegisterDto;
 import com.callog.callog_user.domain.entity.User;
 import com.callog.callog_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +42,12 @@ public class UserService {
         if (existingUser != null) {
             throw new BadParameter("이미 사용중인 아이디 입니다.");
         }
-        User user = dto.toEntity();
+        User user = dto.toUserEntity();
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
+
+
 
     }
 
@@ -57,8 +62,7 @@ public class UserService {
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BadParameter("비밀번호가 일치하지 않습니다.");
         }
-
-        TokenDto.AccessRefreshToken tokens = tokenGenerator.generateAccessRefreshToken(user.getUsername(),
+        TokenDto.AccessRefreshToken tokens = tokenGenerator.generateAccessRefreshToken(user.getUsername(),user.getId(),
                 "WEB");
 
         return tokens; // 로그인 성공
@@ -80,7 +84,7 @@ public class UserService {
             throw new NotFound("사용자를 찾을 수 없습니다.");
         }
 
-        TokenDto.AccessToken newAccessToken = tokenGenerator.generateAccessToken(username, "WEB");
+        TokenDto.AccessToken newAccessToken = tokenGenerator.generateAccessToken(username, user.getId(),"WEB");
 
         return newAccessToken;
     }
@@ -96,6 +100,7 @@ public class UserService {
         // 로그아웃용 토큰 생성 (즉시 만료되는 토큰)
         TokenDto.LogoutToken logoutTokens = tokenGenerator.generateLogoutToken(
                 user.getUsername(),
+                user.getId(),
                 "WEB"
         );
 
@@ -104,39 +109,13 @@ public class UserService {
         return logoutTokens;
     }
 
-    @Transactional
-    public void updateUser(String currentUserId, UserUpdateDto dto) {
-        User user = userRepository.findByUsername(currentUserId);
-
-        //사용자 정보 확인
-        if (user == null) {
-            throw new NotFound("존재하지 않는 사용자입니다.");
-        }
-        //수정한 정보있는지 확인
-        if (!dto.hasAnyUpdate()) {
-            throw new BadParameter("수정한 정보가 없습니다.");
-        }
-        // 키 수정
-        if (dto.hasHeight()) {
-            user.setHeight(dto.getHeight());
-        }
-        // 몸무게 수정
-        if (dto.hasWeight()) {
-            user.setWeight(dto.getWeightAsDouble());
-        }
-        userRepository.save(user);
-    }
 
     public UserInfoDto.Response getUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다. :" + userId));
-
         UserInfoDto.Response response = new UserInfoDto.Response();
         response.setUsername(user.getUsername());
         response.setNickname(user.getNickname());
-
         return response;
     }
-
-
 }
