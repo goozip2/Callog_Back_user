@@ -1,6 +1,6 @@
 package com.callog.callog_user.config.jwt;
 
-import com.callog.callog_user.domain.dto.TokenDto;
+import com.callog.callog_user.domain.dto.token.TokenDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -37,24 +37,25 @@ public class TokenGenerator {
         return secretKey;
     }
 
-    public TokenDto.AccessToken generateAccessToken(String username, String deviceType) {
-        TokenDto.JwtToken jwtToken = this.generateJwtToken(username, deviceType, false);
+    public TokenDto.AccessToken generateAccessToken(String username,Long userId, String deviceType) {
+        TokenDto.JwtToken jwtToken = this.generateJwtToken(username, userId,deviceType, false);
         return new TokenDto.AccessToken(jwtToken);
     }
 
-    public TokenDto.AccessRefreshToken generateAccessRefreshToken(String username, String deviceType) {
-        TokenDto.JwtToken accessJwtToken = this.generateJwtToken(username, deviceType, false);
-        TokenDto.JwtToken refreshJwtToken = this.generateJwtToken(username, deviceType, true);
+    public TokenDto.AccessRefreshToken generateAccessRefreshToken(String username,Long userId, String deviceType) {
+        TokenDto.JwtToken accessJwtToken = this.generateJwtToken(username, userId,deviceType, false);
+        TokenDto.JwtToken refreshJwtToken = this.generateJwtToken(username,userId, deviceType, true);
         return new TokenDto.AccessRefreshToken(accessJwtToken, refreshJwtToken);
     }
 
-    public TokenDto.LogoutToken generateLogoutToken(String username, String deviceType) {
+    public TokenDto.LogoutToken generateLogoutToken(String username, Long userId,String deviceType) {
         Date now = new Date();
         Date expiredTime = new Date(now.getTime() - 1000); // 1초 전으로 설정
 
         String expiredAccessToken = Jwts.builder()
                 .issuer("callog")
                 .subject(username)
+                .claim("userId",userId)
                 .claim("username", username)
                 .claim("deviceType", deviceType)
                 .claim("tokenType", "access")
@@ -69,6 +70,7 @@ public class TokenGenerator {
         String expiredRefreshToken = Jwts.builder()
                 .issuer("callog")
                 .subject(username)
+                .claim("userId",userId)
                 .claim("username", username)
                 .claim("deviceType", deviceType)
                 .claim("tokenType", "refresh")
@@ -86,7 +88,7 @@ public class TokenGenerator {
         );
     }
 
-    public TokenDto.JwtToken generateJwtToken(String username, String deviceType, boolean refreshToken) {
+    public TokenDto.JwtToken generateJwtToken(String username,Long userId, String deviceType, boolean refreshToken) {
         int tokenExpiresIn = tokenExpiresIn(refreshToken, deviceType);
         String tokenType = refreshToken ? "refresh" : "access";
 
@@ -94,6 +96,7 @@ public class TokenGenerator {
                 .issuer("callog")
                 .subject(username)
                 .claim("username", username)
+                .claim("userId",userId)
                 .claim("deviceType", deviceType)
                 .claim("tokenType", tokenType)
                 .issuedAt(new Date())

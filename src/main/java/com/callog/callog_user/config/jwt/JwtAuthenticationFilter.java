@@ -40,10 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (token != null && jwtUtil.validateToken(token)) {
                 //사용자 정보 추출 및 인증 설정
-                String userId = jwtUtil.getUsernameFromToken(token);
+                String username = jwtUtil.getUsernameFromToken(token);
 
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);

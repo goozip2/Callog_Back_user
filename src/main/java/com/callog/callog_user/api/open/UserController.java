@@ -2,7 +2,10 @@ package com.callog.callog_user.api.open;
 
 import com.callog.callog_user.common.dto.ApiResponseDto;
 import com.callog.callog_user.config.jwt.JwtUtil;
-import com.callog.callog_user.domain.dto.*;
+import com.callog.callog_user.domain.dto.token.TokenDto;
+import com.callog.callog_user.domain.dto.user.UserLoginDto;
+import com.callog.callog_user.domain.dto.user.UserRefreshDto;
+import com.callog.callog_user.domain.dto.user.UserRegisterDto;
 import com.callog.callog_user.repository.UserRepository;
 import com.callog.callog_user.service.UserService;
 import jakarta.validation.Valid;
@@ -46,13 +49,5 @@ public class UserController {
         return ApiResponseDto.createOk(logoutTokens);
     }
 
-    @PostMapping("/update")
-    public ApiResponseDto<String> updateUser(
-            @RequestBody @Valid UserUpdateDto dto,
-            Authentication authentication) {
-        String currentUserId = authentication.getName();
-        userService.updateUser(currentUserId, dto);
-        return ApiResponseDto.createOk("신체정보가 수정되었습니다!");
-    }
 
 }
