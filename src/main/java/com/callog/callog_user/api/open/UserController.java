@@ -3,6 +3,7 @@ package com.callog.callog_user.api.open;
 import com.callog.callog_user.common.dto.ApiResponseDto;
 import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.domain.dto.token.TokenDto;
+import com.callog.callog_user.domain.dto.user.LoginResponseDto;
 import com.callog.callog_user.domain.dto.user.UserLoginDto;
 import com.callog.callog_user.domain.dto.user.UserRefreshDto;
 import com.callog.callog_user.domain.dto.user.UserRegisterDto;
@@ -31,9 +32,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ApiResponseDto<TokenDto.AccessRefreshToken> login(@RequestBody @Valid UserLoginDto dto) {
-        TokenDto.AccessRefreshToken tokens = userService.login(dto);
-        return ApiResponseDto.createOk(tokens);
+    public ApiResponseDto<LoginResponseDto> login(@RequestBody @Valid UserLoginDto dto) {
+        LoginResponseDto response = userService.login(dto);
+        return ApiResponseDto.createOk(response);
     }
 
     @PostMapping("/refresh")
