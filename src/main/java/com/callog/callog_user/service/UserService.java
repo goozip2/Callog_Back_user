@@ -5,10 +5,14 @@ import com.callog.callog_user.common.exception.NotFound;
 import com.callog.callog_user.config.jwt.JwtUtil;
 import com.callog.callog_user.config.jwt.TokenGenerator;
 import com.callog.callog_user.domain.dto.token.TokenDto;
+import com.callog.callog_user.domain.dto.user.LoginResponseDto;
 import com.callog.callog_user.domain.dto.user.UserInfoDto;
 import com.callog.callog_user.domain.dto.user.UserLoginDto;
 import com.callog.callog_user.domain.dto.user.UserRegisterDto;
 import com.callog.callog_user.domain.entity.User;
+import com.callog.callog_user.remote.userstatus.RemoteUserStatusService;
+import com.callog.callog_user.remote.userstatus.dto.UserProfileRequest;
+import com.callog.callog_user.remote.userstatus.dto.UserProfileResponse;
 import com.callog.callog_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +32,8 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final TokenGenerator tokenGenerator;
 
+    private final RemoteUserStatusService remoteUserStatusService;
+
     private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
 
 
@@ -45,14 +51,14 @@ public class UserService {
         User user = dto.toUserEntity();
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         user.setPassword(encodedPassword);
-        userRepository.save(user);
+        User registedUser = userRepository.save(user);
 
-
-
+        UserProfileRequest request = new UserProfileRequest(dto.getHeight(), dto.getWeight(), dto.getAge(), dto.getGender());
+        UserProfileResponse response = remoteUserStatusService.upsertProfile(registedUser.getId(), request);
     }
 
     @Transactional(readOnly = true)
-    public TokenDto.AccessRefreshToken login(UserLoginDto dto) {
+    public LoginResponseDto login(UserLoginDto dto) {
         User user = userRepository.findByUsername(dto.getUsername());
         if (user == null) {
             throw new NotFound("존재하지 않는 사용자입니다.");
@@ -65,7 +71,9 @@ public class UserService {
         TokenDto.AccessRefreshToken tokens = tokenGenerator.generateAccessRefreshToken(user.getUsername(),user.getId(),
                 "WEB");
 
-        return tokens; // 로그인 성공
+        UserProfileResponse response = remoteUserStatusService.getUserStats(user.getId());
+
+        return new LoginResponseDto(tokens, response);
 
 
     }
