@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(value = "jwt", ignoreUnknownFields = true)
 @Getter
 @Setter
 public class JwtConfigProperties {
