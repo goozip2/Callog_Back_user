@@ -68,12 +68,13 @@ public class UserService {
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BadParameter("비밀번호가 일치하지 않습니다.");
         }
+        String nickname = user.getNickname();
         TokenDto.AccessRefreshToken tokens = tokenGenerator.generateAccessRefreshToken(user.getUsername(),user.getId(),
                 "WEB");
 
         UserProfileResponse response = remoteUserStatusService.getUserStats(user.getId());
 
-        return new LoginResponseDto(tokens, response);
+        return new LoginResponseDto(nickname, tokens, response);
 
 
     }
