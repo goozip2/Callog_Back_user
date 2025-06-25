@@ -110,7 +110,7 @@ public class TokenGenerator {
     }
 
     private int tokenExpiresIn(boolean refreshToken, String deviceType) {
-        int expiresIn = 60 * 15; // 기본값: 15분
+        int expiresIn = 60 * 60; // 기본값: 15분 ▶ 1시간
 
         if (refreshToken) {
             try {
