@@ -9,14 +9,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class LoginResponseDto {
+    private String nickname;
     private TokenDto.AccessRefreshToken tokens;
     private UserProfileResponse userProfile;
 
-    public TokenDto.AccessRefreshToken getTokens() {
-        return tokens;
-    }
-
-    public UserProfileResponse getUserProfile() {
-        return userProfile;
-    }
 }
