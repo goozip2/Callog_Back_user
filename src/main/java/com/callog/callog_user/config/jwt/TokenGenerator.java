@@ -3,6 +3,7 @@ package com.callog.callog_user.config.jwt;
 import com.callog.callog_user.domain.dto.token.TokenDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,19 +22,18 @@ public class TokenGenerator {
     // 🔐 비밀키 생성 (로그 제거)
     private SecretKey getSecretKey() {
         if (secretKey == null) {
+            // 초기화 필요한 경우, 동기화 블록 진입
+            // Monitor Lock을 걸면, 한 번에 하나의 스레드만 진입 가능 -> 다른 스레드는 락을 획득할 때까지 대기 상태(BLOCKED)로 들어감
+            // 서로 간섭 없이 임계 영역이 실행되도록 보장
+            // 다시 확인 (double check: 여러 스레드가 동기화 블록에 진입했더라도 최초 1개 스레드만 초기화하도록 보장)
             synchronized (this) {
                 if (secretKey == null) {
-                    String configSecret = configProperties.getSecretKey();
-                    String hardcodedSecret = "localDevelopmentSecretKeyForTestingOnly123456789";
-
-                    String finalSecret = (configSecret != null && !configSecret.trim().isEmpty())
-                            ? configSecret
-                            : hardcodedSecret;
-
-                    secretKey = Keys.hmacShaKeyFor(finalSecret.getBytes());
+//                    secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(configProperties.getSecretKey()));
+                    secretKey = Keys.hmacShaKeyFor(configProperties.getSecretKey().getBytes());
                 }
             }
         }
+        log.info("시크릿키!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{}",secretKey);
         return secretKey;
     }
 
