@@ -11,6 +11,7 @@ import lombok.Setter;
 //@PasswordMatch
 public class UserRegisterDto {
 
+    @Email(message = "유효한 이메일 형식이 아닙니다.")
     @NotBlank(message = "아이디를 입력하세요.")
     private String username;
 
